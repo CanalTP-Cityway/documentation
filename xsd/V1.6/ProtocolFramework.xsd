@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+    targetNamespace="http://www.apiisim.fr/common/1.0/protocol-framework"
+    xmlns="http://www.apiisim.fr/common/1.0/protocol-framework">
+    <xs:complexType name="ServiceDefaultsType">
+        <xs:annotation>
+            <xs:documentation>Paramètres par défaut utilisés dans les structures de réponses des différents services</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element minOccurs="0" name="DefaultLocale">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="DefaultLanguage" type="xs:language">
+                            <xs:annotation>
+                                <xs:documentation>Langue par défaut pour les informations textuelles</xs:documentation>
+                            </xs:annotation>
+                        </xs:element>
+                        <xs:element minOccurs="0" name="TimeZoneOffset" type="xs:decimal">
+                            <xs:annotation>
+                                <xs:documentation>Timezone offset from Greenwich at LOCALE.
+Offset from Greenwich in hours. e.g. +5 ,- 2</xs:documentation>
+                            </xs:annotation>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element minOccurs="0" name="DefaultLocationSystem" type="xs:normalizedString">
+                <xs:annotation>
+                    <xs:documentation>Référentiel géographique par défaut utilisé au niveau des structures GML</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element default="SiMetres" minOccurs="0" name="DefaultSystemOfUnits"
+                type="SystemOfUnits">
+                <xs:annotation>
+                    <xs:documentation>Units of measurement for all dimension values in Frame. Default System  is Si Metres.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element maxOccurs="1" minOccurs="0" name="geographicOverviewFormats">
+                <xs:annotation>
+                    <xs:documentation>Catalogue des formats utilisés pour représenter les tracés géographiques</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="1"
+                            name="GeographicOverviewFormat">
+                            <xs:annotation>
+                                <xs:documentation>Format de représentation de tracé géographique</xs:documentation>
+                            </xs:annotation>
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="GeographicResourceFormatRef" type="xs:int">
+                                        <xs:annotation>
+                                            <xs:documentation>Référence du format</xs:documentation>
+                                        </xs:annotation>
+                                    </xs:element>
+                                    <xs:element name="GeographicResourceFormat"
+                                        type="xs:normalizedString">
+                                        <xs:annotation>
+                                            <xs:documentation>Nom du format (KML ou WKT par exemple)</xs:documentation>
+                                        </xs:annotation>
+                                    </xs:element>
+                                </xs:sequence>
+                                <xs:attribute name="default" type="xs:boolean">
+                                    <xs:annotation>
+                                        <xs:documentation>Indique s'il s'agit du format par défaut dans l'ensemble de la réponse du service</xs:documentation>
+                                    </xs:annotation>
+                                </xs:attribute>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="SystemOfUnits">
+        <xs:annotation>
+            <xs:documentation>System of units.</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:normalizedString">
+            <xs:enumeration value="SiMetres">
+                <xs:annotation>
+                    <xs:documentation>All measurements are SI metric. 
+Distance = Meters
+Length = Meters
+Weight = Kilos
+Speed = Metres per second.</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="SiKilometersAndMetres">
+                <xs:annotation>
+                    <xs:documentation>All measurements are SI 
+Distance = Kilometers
+Length = Meters
+Weight = Kilos
+Speed = Metres per second.</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="Other"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

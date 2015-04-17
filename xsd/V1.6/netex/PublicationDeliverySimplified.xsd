@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+    targetNamespace="http://www.netex.org.uk/netex" xmlns="http://www.netex.org.uk/netex"
+    xmlns:gml="http://www.opengis.net/gml/3.2">
+    <xs:import namespace="http://www.opengis.net/gml/3.2"
+        schemaLocation="http://schemas.opengis.net/gml/3.2.1/gml.xsd"/>
+    <xs:complexType name="PublicationDeliveryType">
+        <xs:sequence>
+            <xs:element name="dataObjects">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="frameValidityConditions">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="SimpleValidityCondition">
+                                        <xs:complexType>
+                                            <xs:sequence>
+                                                <xs:element name="FromDate" type="xs:dateTime"/>
+                                                <xs:element name="ToDate" type="xs:dateTime"/>
+                                            </xs:sequence>
+                                        </xs:complexType>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                        <xs:element name="CompositeFrame">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="frames">
+                                        <xs:complexType>
+                                            <xs:sequence>
+                                                <xs:element name="SiteFrame">
+                                                    <xs:complexType>
+                                                        <xs:sequence>
+                                                            <xs:element name="stopPlaces" maxOccurs="unbounded" type="StopPlaceType"/>
+                                                        </xs:sequence>
+                                                    </xs:complexType>
+                                                </xs:element>
+                                            </xs:sequence>
+                                        </xs:complexType>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="version" type="xs:NMTOKEN" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="StopPlaceType">
+        <xs:sequence>
+            <xs:element minOccurs="0" name="ParentZoneRef" type="xs:normalizedString"/>
+            <xs:element name="quays" minOccurs="0" maxOccurs="unbounded" type="QuayType"/>
+            <xs:element minOccurs="0" name="placeTypes" type="xs:normalizedString"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:normalizedString" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="QuayType">
+        <xs:sequence>
+            <xs:element name="Name" type="xs:normalizedString"/>
+            <xs:element name="Description" type="xs:normalizedString"/>
+            <xs:element name="PrivateCode" type="xs:normalizedString"/>
+            <xs:element name="Centroid">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="Location" type="LocationStructure"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="PostalAddress" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="CountryRef" minOccurs="0">
+                            <xs:complexType>
+                                <xs:attribute name="ref" type="xs:normalizedString" use="required"/>
+                            </xs:complexType>
+                        </xs:element>
+                        <xs:element name="AddressLine1" type="xs:string" minOccurs="0"/>
+                        <xs:element name="PostCode" type="xs:string"/>
+                    </xs:sequence>
+                    <xs:attribute name="created" type="xs:dateTime" use="optional"/>
+                    <xs:attribute name="id" type="xs:normalizedString" use="optional"/>
+                    <xs:attribute name="version" type="xs:normalizedString" use="optional"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="TransportMode" type="VehicleModeEnumeration" minOccurs="0"/>
+            <xs:element name="QuayType" minOccurs="0" type="QuayTypeEnumeration"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:NMTOKEN" use="required"/>
+        <xs:attribute name="version" type="xs:integer" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="LocationStructure">
+        <xs:sequence>
+            <xs:sequence>
+                <xs:element name="Longitude"/>
+                <xs:element name="Latitude"/>
+            </xs:sequence>
+            <xs:element minOccurs="0" ref="gml:pos"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="QuayTypeEnumeration">
+        <xs:annotation>
+            <xs:documentation>Allowed values for QUAY Component Types.</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="airlineGate"/>
+            <xs:enumeration value="railPlatform"/>
+            <xs:enumeration value="metroPlatform"/>
+            <xs:enumeration value="coachStop"/>
+            <xs:enumeration value="busStop"/>
+            <xs:enumeration value="busBay"/>
+            <xs:enumeration value="tramPlatform"/>
+            <xs:enumeration value="tramStop"/>
+            <xs:enumeration value="boatQuay"/>
+            <xs:enumeration value="ferryLanding"/>
+            <xs:enumeration value="telecabinePlatform"/>
+            <xs:enumeration value="taxiStand"/>
+            <xs:enumeration value="setDownPlace"/>
+            <xs:enumeration value="vehicleLoadingPlace"/>
+            <xs:enumeration value="other"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="VehicleModeEnumeration">
+        <xs:annotation>
+            <xs:documentation>Allowed values for MODES of Public Transport applicable to timetabled public transport.</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:NMTOKEN">
+            <xs:enumeration value="air"/>
+            <xs:enumeration value="bus"/>
+            <xs:enumeration value="coach"/>
+            <xs:enumeration value="ferry"/>
+            <xs:enumeration value="metro"/>
+            <xs:enumeration value="rail"/>
+            <xs:enumeration value="trolleyBus"/>
+            <xs:enumeration value="tram"/>
+            <xs:enumeration value="water"/>
+            <xs:enumeration value="cableway"/>
+            <xs:enumeration value="funicular"/>
+            <xs:enumeration value="lift"/>
+            <xs:enumeration value="other"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="AccessModeEnumeration">
+        <xs:annotation>
+            <xs:documentation>Allowed values for Access MODEs for SITEs.</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="foot"/>
+            <xs:enumeration value="bicycle"/>
+            <xs:enumeration value="boat"/>
+            <xs:enumeration value="car"/>
+            <xs:enumeration value="taxi"/>
+            <xs:enumeration value="shuttle"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

@@ -1,0 +1,676 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+    targetNamespace="http://www.apiisim.fr/common/1.0/itinerary"
+    xmlns="http://www.apiisim.fr/common/1.0/itinerary" xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:site="http://www.apiisim.fr/common/1.0/site" xmlns:netex="http://www.netex.org.uk/netex">
+    <xs:import namespace="http://www.opengis.net/gml/3.2" schemaLocation="gml/3.2.1/gml.xsd"/>
+    <xs:import namespace="http://www.apiisim.fr/common/1.0/site" schemaLocation="Site.xsd"/>
+    <xs:import namespace="http://www.netex.org.uk/netex"
+        schemaLocation="netex/PublicationDeliverySimplified.xsd"/>
+    <xs:simpleType name="PublicTransportModeEnumeration">
+        <xs:annotation>
+            <xs:documentation>Enumération des modes de transport public</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="BUS"/>
+            <xs:enumeration value="TROLLEYBUS"/>
+            <xs:enumeration value="TRAM"/>
+            <xs:enumeration value="COACH"/>
+            <xs:enumeration value="RAIL"/>
+            <xs:enumeration value="URBANRAIL"/>
+            <xs:enumeration value="INTERCITYRAIL"/>
+            <xs:enumeration value="METRO"/>
+            <xs:enumeration value="AIR"/>
+            <xs:enumeration value="WATER"/>
+            <xs:enumeration value="CABLE"/>
+            <xs:enumeration value="FUNICULAR"/>
+            <xs:enumeration value="TAXI"/>
+            <xs:enumeration value="UNKNOWN"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="SectionType">
+        <xs:annotation>
+            <xs:documentation>Portion d'itinéraire réalisé à l'aide d'un même moyen de transport.</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element minOccurs="0" name="PartialTripId" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Identifiant de la portion d'itinéraire décrite</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:choice>
+                <xs:element name="PTRide" type="PTRideType">
+                    <xs:annotation>
+                        <xs:documentation>Portion de l'itinéraire où le voyageur est pris en charge (mise à disposition d'un moyen de transport).</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="Leg" type="LegType">
+                    <xs:annotation>
+                        <xs:documentation>Portion de l'itinéraire où le voyageur assume seul son déplacement (véhicule éventuel et orientation).</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+            </xs:choice>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:group name="GeneralSectionGroup">
+        <xs:annotation>
+            <xs:documentation>Groupe d'éléments génériques utile à la description de tout ou partie d'un itinéraire</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Departure" type="EndPointType">
+                <xs:annotation>
+                    <xs:documentation>Point de départ de la portion</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Arrival" type="EndPointType">
+                <xs:annotation>
+                    <xs:documentation>Point d'arrivée de la portion</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Duration" type="xs:duration">
+                <xs:annotation>
+                    <xs:documentation>Durée de parcours de la section</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="GeographicOverview">
+                <xs:annotation>
+                    <xs:documentation>Information géographique sur le parcours</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="GeographicResource" type="xs:string">
+                            <xs:annotation>
+                                <xs:documentation>Donnée ou référence par la description géopgraphique du parcours selon un format</xs:documentation>
+                            </xs:annotation>
+                        </xs:element>
+                        <xs:element minOccurs="0" name="GeographicResourceFormatRef" type="xs:int">
+                            <xs:annotation>
+                                <xs:documentation>Format de la description géographique</xs:documentation>
+                            </xs:annotation>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:group>
+    <xs:complexType name="CarbonFootprintType">
+        <xs:annotation>
+            <xs:documentation>Structure de description du bilan carbone d'un itinéraire complet</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="TripCO2" type="xs:int">
+                <xs:annotation>
+                    <xs:documentation>Bilan carbone pour le trajet</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="CarCO2" type="xs:int">
+                <xs:annotation>
+                    <xs:documentation>Bilan carbone pour le trajet s'il est effectué en voiture entièrement</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Ratio" type="xs:double">
+                <xs:annotation>
+                    <xs:documentation>Rapport entre les bilan carbone calculés, infèrieur à 1 si le trajet émet moins de CO2 que s'il était fait entièrement en voiture</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="CarPoolInformationType">
+        <xs:annotation>
+            <xs:documentation>Structure de description d'un itinéraire par co-voiturage</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="DetailedTripUrl" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Url du detail du trajet sur le site du partenaire</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="ProviderName" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Nom du partenaire de co-voiturage</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="RoundTrip" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Information indiquant si le voyage est un aller simplue ou un aller/retour</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ODTInformationType">
+        <xs:annotation>
+            <xs:documentation>Structure de description d'un itinéraire en Transport à la Demande (TAD en français)</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element minOccurs="0" name="Url" type="xs:anyURI">
+                <xs:annotation>
+                    <xs:documentation>Url du site pour le TAD</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="BookingInformation">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="Phone" type="xs:string">
+                            <xs:annotation>
+                                <xs:documentation>Numéro de réservation</xs:documentation>
+                            </xs:annotation>
+                        </xs:element>
+                        <xs:element minOccurs="0" name="BookingMessage" type="xs:string"/>
+                        <xs:element minOccurs="0" name="Language" type="xs:language">
+                            <xs:annotation>
+                                <xs:documentation>Langue utilisée au niveau de l'élément LocationName et des réponses attendues.
+NB: les localités ont parfois des appelations propres à une langue. Exemple: Londres/London, Naples/Napoli</xs:documentation>
+                            </xs:annotation>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="TripType">
+        <xs:annotation>
+            <xs:documentation>Structure qui détaille les caractéristiques d'une solution d'itinéraire complet et compatible avec les critères de recherche</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:group ref="GeneralSectionGroup"/>
+            <xs:element minOccurs="0" name="Distance" type="xs:int">
+                <xs:annotation>
+                    <xs:documentation>Distance parcourue par l'itinéraire entier</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="Disrupted" type="xs:boolean">
+                <xs:annotation>
+                    <xs:documentation>Indique s'il y a une perturbation sur le parcours</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="InterchangeNumber" type="xs:int">
+                <xs:annotation>
+                    <xs:documentation>Total de changement nécessaires pour parcourir l'itinéraire en entier</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="CarFootprint" type="CarbonFootprintType">
+                <xs:annotation>
+                    <xs:documentation>Bilan carbone de l'itinéraire entier</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="sections" type="SectionType">
+                <xs:annotation>
+                    <xs:documentation>liste de portions d'itinéraire permettant de réaliser un itinéraire complet et compatible avec les critères de recherche</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>Cet identifiant permet de bien distinguer les Trip issus des différentes notifications successives.</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="PTRideExtensionType">
+        <xs:annotation>
+            <xs:documentation>Extension prévue pour compléter la description du PTRide</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:any namespace="##any"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="LegExtensionType">
+        <xs:annotation>
+            <xs:documentation>Extension prévue pour compléter la description du Leg</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:any namespace="##any"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="LegType">
+        <xs:annotation>
+            <xs:documentation>Structure qui décrit une portion de l'itinéraire où le voyageur assume seul son déplacement (véhicule éventuel et orientation).</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="pathLinks" type="PathLinkType">
+                <xs:annotation>
+                    <xs:documentation>Cheminement</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="SelfDriveMode" type="netex:AccessModeEnumeration">
+                <xs:annotation>
+                    <xs:documentation>Enumération des modes de transport</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:group minOccurs="1" ref="GeneralSectionGroup"/>
+            <xs:element minOccurs="0" name="Extension" type="LegExtensionType"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="PTRideType">
+        <xs:annotation>
+            <xs:documentation>Structure qui décrit une portion de l'itinéraire où le voyageur est pris en charge (mise à disposition d'un moyen de transport).</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="PublicTransportMode" type="PublicTransportModeEnumeration">
+                <xs:annotation>
+                    <xs:documentation>Mode de transport emprunté par le PTRide</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="CarPoolInformation" type="CarPoolInformationType"/>
+            <xs:element minOccurs="0" name="ODTInformation" type="ODTInformationType"/>
+            <xs:group ref="GeneralSectionGroup"/>
+            <xs:element minOccurs="0" name="Disrupted" type="xs:boolean"/>
+            <xs:element minOccurs="0" name="AccessibilityNeedsProvided" type="xs:boolean"/>
+            <xs:element minOccurs="0" name="isLastJourney" type="xs:boolean"/>
+            <xs:element minOccurs="0" name="StopHeadSign" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>code girouette affiché sur le véhicule emprunté par le PTRide</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="JourneyPatternName" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>nom de la mission empruntée par le PTRide</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="Line" type="LineType">
+                <xs:annotation>
+                    <xs:documentation>ligne empruntée par le PTRide</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="GroupOfLine" type="GroupOfLineType">
+                <xs:annotation>
+                    <xs:documentation>groupe de ligne associé à la ligne empruntée par le PTRide</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="PTNetwork" type="PTNetworkType">
+                <xs:annotation>
+                    <xs:documentation>réseau de la ligne empruntée par le PTRide</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="Company" type="CompanyType"/>
+            <xs:element minOccurs="0" name="Distance" type="xs:int">
+                <xs:annotation>
+                    <xs:documentation>Distance parcourue par le PTRide</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="Comment" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Commentaire</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="steps" type="StepType">
+            </xs:element>
+            <xs:element minOccurs="0" name="Extension" type="PTRideExtensionType"/>
+        </xs:sequence>
+        <xs:attribute name="lineRef" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>Identifiant de la ligne empruntée par le PTRide</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="companyRef" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>Identifiant du transporteur associé à la ligne empruntée par le PTRide</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="ptNetworkRef" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>Identifiant du réseau associé à la ligne empruntée par le PTRide</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="vehicleJourneyRef" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>Identifiant du véhicule associé à la ligne empruntée par le PTRide</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="groupOfLineRef" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>Identifiant du groupe de ligne associé à la ligne empruntée par le PTRide</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="LineType">
+        <xs:annotation>
+            <xs:documentation>Structure de ligne du réseau de transport en commun</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Name" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Nom de la ligne</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="Number" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Indice de la ligne</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="PublishedName" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Nom pubic de la ligne</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="RegistrationNumber" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Identifiant administratif de la ligne</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="Comment" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Commentaire</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>Identifiant de la ligne</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="companyRef" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>Identifiant du transporteur de la ligne (inutile si la strucure Company est fournie)</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="ptNetworkRef" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>Identifiant du réseau de la ligne (inutile si la structure ptNetwork est fournie)</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="groupOfLineRef" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>Identifiant du groupe de ligne associé à la ligne (inutile si la structure GroupOfLine est fournie)</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="CompanyType">
+        <xs:annotation>
+            <xs:documentation>Structure qui décrit le transporteur</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Name" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Nom du transporteur</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="RegistrationNumber" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Identifiant administratif du transporteur</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="ShortName" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Nom court du transporteur</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="OrganisationalUnit" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Unité responsable de l'information voyageur chez le transporteur</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="OperatingDepartementName" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Département responsable de l'information voyageur chez le transporteur</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="Phone" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Numéro de téléphone</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="Code" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Code du transporteur</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="Fax" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Numéro de fax</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="Email" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Mail du transporteur</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>Identifiant du transporteur</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="GroupOfLineType">
+        <xs:annotation>
+            <xs:documentation>Structure qui décrit le groupe de ligne</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Name" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Nom du groupe de ligne</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>Identifiant du groupe de ligne</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="PTNetworkType">
+        <xs:annotation>
+            <xs:documentation>Structure qui décrit le réseau</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Name" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Nom du réseau</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="VersionDate" type="xs:date"/>
+            <xs:element minOccurs="0" name="RegistrationNumber" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Identifiant administratif</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="Comment" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Commentaire</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>Identifiant du réseau de transport</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="StepExtensionType">
+        <xs:annotation>
+            <xs:documentation>Extension de la structure StepType</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:any/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="PathLinkExtensionType">
+        <xs:annotation>
+            <xs:documentation>Extension de la structure PathLinkType</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:any/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="PathLinkType">
+        <xs:annotation>
+            <xs:documentation>Structure qui décrit un cheminement qui n'emprunte pas de véhicule de transport en commun</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Departure" type="EndPointType">
+                <xs:annotation>
+                    <xs:documentation>Départ du cheminement</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Arrival" type="EndPointType">
+                <xs:annotation>
+                    <xs:documentation>Destination du cheminement</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Duration" type="xs:duration">
+                <xs:annotation>
+                    <xs:documentation>Durée de parcours du cheminement</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="Distance" type="xs:int">
+                <xs:annotation>
+                    <xs:documentation>Distance parcourue par le cheminement</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="Geometry" type="gml:LineStringType">
+                <xs:annotation>
+                    <xs:documentation>Tracé géographique du cheminement</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="GuidanceInfo" type="GuidanceInfoType">
+                <xs:annotation>
+                    <xs:documentation>Instruction associée à un guidage à ce niveau du cheminement</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="Extension" type="PathLinkExtensionType"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>Identifiant du cheminement </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="EndPointExtensionType">
+        <xs:annotation>
+            <xs:documentation>Structure d'extension des extrémités de cheminement</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:any namespace="##any"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="StepType">
+        <xs:annotation>
+            <xs:documentation>Structure qui décrit une section de transport en commun. Tout au long d'une section, le voyageur est à bord d'un même véhicule.</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Departure" type="StepEndPointType">
+                <xs:annotation>
+                    <xs:documentation>Départ du véhicule</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Arrival" type="StepEndPointType">
+                <xs:annotation>
+                    <xs:documentation>Arrivée du véhicule</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="Geometry" type="gml:LineStringType">
+                <xs:annotation>
+                    <xs:documentation>Tracé géographique de la section</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Duration" type="xs:duration">
+                <xs:annotation>
+                    <xs:documentation>Durée de parcours de la section</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="Distance" type="xs:int">
+                <xs:annotation>
+                    <xs:documentation>Distance parcourure sur la section</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="GuidanceInfo" type="GuidanceInfoType">
+                <xs:annotation>
+                    <xs:documentation>Instruction associée à un guidage à ce niveau du cheminement</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="Extension" type="StepExtensionType"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>Identifiant de la section de transport en commun</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="StepEndPointType">
+        <xs:complexContent>
+            <xs:extension base="EndPointType">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="PassThrough" type="xs:boolean"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="StepEndPointExtensionType">
+        <xs:sequence>
+            <xs:any namespace="##any"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="EndPointType">
+        <xs:annotation>
+            <xs:documentation>Structure qui décrit une extrémité de cheminement (départ ou arrivée) </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="TripStopPlace" type="site:TripStopPlaceType">
+                <xs:annotation>
+                    <xs:documentation>Structure la plus générique qui représente un point de passage sur le parcours: adresse, arrêt, commune, etc...</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="DateTime" type="xs:dateTime">
+                <xs:annotation>
+                    <xs:documentation>Horaire de passage à ce point du cheminement</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="Extension" type="EndPointExtensionType"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="GuidanceInfoType">
+        <xs:annotation>
+            <xs:documentation>Structure qui décrit une instruction de guidage</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Instruction" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Instruction de guidage exprimée dans une langue donnée</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Language" type="xs:language">
+                <xs:annotation>
+                    <xs:documentation>Code langue</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="Extension" type="GuidanceInfoExtensionType"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="GuidanceInfoExtensionType">
+        <xs:sequence>
+            <xs:any namespace="##any"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="TransportModeEnumeration">
+        <xs:annotation>
+            <xs:documentation>Enumération des modes de transport</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="ALL"/>
+            <xs:enumeration value="BUS"/>
+            <xs:enumeration value="TROLLEYBUS"/>
+            <xs:enumeration value="TRAM"/>
+            <xs:enumeration value="COACH"/>
+            <xs:enumeration value="RAIL"/>
+            <xs:enumeration value="INTERCITYRAIL"/>
+            <xs:enumeration value="URBANRAIL"/>
+            <xs:enumeration value="METRO"/>
+            <xs:enumeration value="AIR"/>
+            <xs:enumeration value="WATER"/>
+            <xs:enumeration value="CABLE"/>
+            <xs:enumeration value="FUNICULAR"/>
+            <xs:enumeration value="TAXI"/>
+            <xs:enumeration value="BIKE"/>
+            <xs:enumeration value="CAR"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="TripPartEnumeration">
+        <xs:annotation>
+            <xs:documentation>Début ou fin d'itinéraire</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="DEPARTURE"/>
+            <xs:enumeration value="ARRIVAL"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2006 sp2 U (http://www.altova.com) by toto (EMBRACE) -->
+<xs:schema xmlns="http://www.apiisim.fr/distributed-journey-planner/1.0/search-point"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:elementFormDefault="qualified"
+	targetNamespace="http://www.apiisim.fr/distributed-journey-planner/1.0/search-point"
+	version="0.10" id="journeyplanner"
+	xmlns:protocol="http://www.apiisim.fr/distributed-journey-planner/1.0/protocol"
+	xmlns:site="http://www.apiisim.fr/common/1.0/site" xmlns:netex="http://www.netex.org.uk/netex"
+	xmlns:protocol-framework="http://www.apiisim.fr/common/1.0/protocol-framework">
+	<xs:import namespace="http://www.apiisim.fr/distributed-journey-planner/1.0/protocol"
+		schemaLocation="Protocol.xsd"/>
+	<xs:import namespace="http://www.apiisim.fr/common/1.0/site" schemaLocation="Site.xsd"/>
+	<xs:import namespace="http://www.netex.org.uk/netex"
+		schemaLocation="netex/PublicationDeliverySimplified.xsd"/>
+	<xs:import namespace="http://www.apiisim.fr/common/1.0/protocol-framework"
+		schemaLocation="ProtocolFramework.xsd"/>
+	<xs:element name="SearchPointsRequest" type="SearchPointsRequestType">
+		<xs:annotation>
+			<xs:documentation>Requête qu'un client peut adresser au service de recherche de localités</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="SearchPointsResponse" type="SearchPointsResponseType">
+		<xs:annotation>
+			<xs:documentation>Réponse à une demande de recherche de localité</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="SearchPointsNotificationResponse" type="SearchPointsNotificationResponseType">
+		<xs:annotation>
+			<xs:documentation>Structure de réponse que retourne le service de recherche de localités.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="SearchPointsCancellationRequest" type="protocol:AbstractRequestType">
+		<xs:annotation>
+			<xs:documentation>Requête pour l'annulation d'une recherche de localités</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="SearchPointsCancellationNotificationResponse"
+		type="protocol:AbstractNotificationResponseType">
+		<xs:annotation>
+			<xs:documentation>Acquittement de l'annulation d'une recherche de localités</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="SearchPointsResponseType">
+		<xs:annotation>
+			<xs:documentation>Structure qui décrit la réponse à une demande de recherche de localité</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="protocol:AbstractResponseType">
+				<xs:sequence>
+					<xs:element name="clientRequestId" type="xs:string">
+						<xs:annotation>
+							<xs:documentation>Identifiant de la demande de recherche de localité fournie par le client</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element maxOccurs="unbounded" minOccurs="0" name="errors" type="ErrorType">
+						<xs:annotation>
+							<xs:documentation>séquence des données en erreur dans la structure associée à la demande de recherche de localité</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="SearchPointsRequestType">
+		<xs:annotation>
+			<xs:documentation>Structure qui décrit la requête qu'un client peut adresser à un service de recherche de localités</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="protocol:AbstractRequestType">
+				<xs:sequence>
+					<xs:element name="InitialInput" type="InitialInputType">
+						<xs:annotation>
+							<xs:documentation>Texte devant servir de critère de recherche</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element minOccurs="0" name="MaxPoints" type="xs:int">
+						<xs:annotation>
+							<xs:documentation>Quantité maximum de résultats attendus</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element minOccurs="0" name="TypeOfPlaceRef" type="xs:normalizedString">
+						<xs:annotation>
+							<xs:documentation>Type d'arrêt recherché</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element minOccurs="0" name="GeoRestriction" type="GeoRestrictionType">
+						<xs:annotation>
+							<xs:documentation>Critère qui limite la recherche de localités dans une emprise géographique</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="InitialInputType">
+		<xs:annotation>
+			<xs:documentation>Ensemble des critères d'une recherche de localités</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element minOccurs="0" name="LocationName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Texte qui correspond en général à la saisie textuelle de l'utilisateur final</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element minOccurs="0" name="GeoRestriction" type="GeoRestrictionType">
+				<xs:annotation>
+					<xs:documentation>Critères géographiques pour la recherche de localités</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Language" type="xs:language" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Langue utilisée au niveau de l'élément LocationName et des réponses attendues.
+NB: les localités ont parfois des appelations propres à une langue. Exemple: Londres/London, Naples/Napoli</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="GeoRestrictionType">
+		<xs:annotation>
+			<xs:documentation>Structure qui définit une emprise géographique</xs:documentation>
+		</xs:annotation>
+		<xs:choice>
+			<xs:element name="Circle" type="CircleType"/>
+			<xs:element name="Area" type="AreaType"/>
+			<xs:element name="UsedSystemOfUnits" type="protocol-framework:SystemOfUnits"/>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="CircleType">
+		<xs:annotation>
+			<xs:documentation>Emprise géographique "circulaire"</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Center" type="netex:LocationStructure">
+				<xs:annotation>
+					<xs:documentation>Centre de l'emprise</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Radius" type="xs:decimal">
+				<xs:annotation>
+					<xs:documentation>Rayon exprimé selon une unité de mesure à préciser par ailleurs</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="AreaType">
+		<xs:annotation>
+			<xs:documentation>Emprise géographique de type polygone</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="polylinePositions">
+				<xs:annotation>
+					<xs:documentation>Liste des sommets du polygone</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence maxOccurs="unbounded" minOccurs="3">
+						<xs:element name="Position" type="netex:LocationStructure"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SearchPointsNotificationResponseType">
+		<xs:annotation>
+			<xs:documentation>Structure qui décrit une réponse du service de recherche de localités</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="protocol:AbstractNotificationResponseType">
+				<xs:sequence>
+					<xs:element name="SearchPointsStatus" type="SearchPointsStatusType">
+						<xs:annotation>
+							<xs:documentation>Status de la notification</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="searchPoints" minOccurs="0">
+						<xs:annotation>
+							<xs:documentation>Liste de propositions de localités</xs:documentation>
+						</xs:annotation>
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="SearchPoint" maxOccurs="unbounded">
+									<xs:annotation>
+										<xs:documentation>Structure qui décrit une localité</xs:documentation>
+									</xs:annotation>
+									<xs:complexType>
+										<xs:complexContent>
+											<xs:extension base="site:PlaceType"> </xs:extension>
+										</xs:complexContent>
+									</xs:complexType>
+								</xs:element>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="Language" type="xs:language" minOccurs="0">
+						<xs:annotation>
+							<xs:documentation>Langue utilisée pour nommer les localités</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="SearchPointsStatusCodeEnumeration">
+		<xs:annotation>
+			<xs:documentation>Enumération des codes de status propre au service de recherche de localités</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="OK"/>
+			<xs:enumeration value="NO_MORE_SOLUTION_FOR_REQUEST"/>
+			<xs:enumeration value="NO_SOLUTION_FOR_REQUEST"/>
+			<xs:enumeration value="BAD_REQUEST"/>
+			<xs:enumeration value="INTERNAL_ERROR"/>
+			<xs:enumeration value="REQUEST_NOT_ENOUGH_ACCURATE"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="SearchPointsStatusType">
+		<xs:annotation>
+			<xs:documentation>Structure de status propre au service de recherche de localités</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="SearchPointsStatusCode" type="SearchPointsStatusCodeEnumeration"/>
+			<xs:group ref="protocol:StatusGroup"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ErrorType">
+		<xs:sequence>
+			<xs:element name="Field" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Nom de l'élément en erreur
+</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Message" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Message d'erreur associé</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

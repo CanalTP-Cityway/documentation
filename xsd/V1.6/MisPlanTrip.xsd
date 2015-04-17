@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+    targetNamespace="http://www.apiisim.fr/mis-generic/1.0/plantrip"
+    xmlns="http://www.apiisim.fr/mis-generic/1.0/plantrip"
+    xmlns:itinerary="http://www.apiisim.fr/common/1.0/itinerary"
+    xmlns:itinerary-request="http://www.apiisim.fr/common/1.0/itinerary-request"
+    xmlns:location-time="http://www.apiisim.fr/mis-generic/1.0/location-time"
+    xmlns:protocol="http://www.apiisim.fr/mis-generic/1.0/protocol">
+    <xs:import namespace="http://www.apiisim.fr/mis-generic/1.0/protocol"
+        schemaLocation="MisProtocol.xsd"/>
+    <xs:import namespace="http://www.apiisim.fr/common/1.0/itinerary" schemaLocation="Itinerary.xsd"/>
+    <xs:import namespace="http://www.apiisim.fr/common/1.0/itinerary-request"
+        schemaLocation="ItineraryRequest.xsd"/>
+    <xs:import namespace="http://www.apiisim.fr/mis-generic/1.0/location-time"
+        schemaLocation="MisLocationTime.xsd"/>
+    <xs:element name="ItineraryRequest" type="ItineraryRequestType">
+        <xs:annotation>
+            <xs:documentation>Requête de recherche d'itinéraire détaillé</xs:documentation>
+        </xs:annotation>
+    </xs:element>
+    <xs:element name="ItineraryResponse" type="ItineraryResponseType">
+        <xs:annotation>
+            <xs:documentation>Réponse sur service de recherche d'itinéraire détaillé </xs:documentation>
+        </xs:annotation>
+    </xs:element>
+    <xs:complexType name="ItineraryResponseType">
+        <xs:annotation>
+            <xs:documentation>Structure de réponse du service de recherche d'itinéraire détaillé</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="protocol:AbstractResponseType">
+                <xs:sequence>
+                    <xs:element name="Status">
+                        <xs:annotation>
+                            <xs:documentation>Structure de status de la réponse</xs:documentation>
+                        </xs:annotation>
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:element name="Code" type="PlanTripStatusCodeEnumeration">
+                                    <xs:annotation>
+                                        <xs:documentation>Code du status de la réponse produite par un service fourni sur les SIM.</xs:documentation>
+                                    </xs:annotation>
+                                </xs:element>
+                                <xs:group ref="protocol:StatusGroup"/>
+                            </xs:sequence>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element name="DetailedTrip" minOccurs="0" type="itinerary:TripType"
+                        maxOccurs="1">
+                        <xs:annotation>
+                            <xs:documentation>Structure qui décrit en détail une proposition d'itinéraire qui satisfait les critères de recherche</xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="ItineraryRequestType">
+        <xs:annotation>
+            <xs:documentation>Structure de requête du service de recherche d'itinéraire détaillé</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="protocol:AbstractRequestType">
+                <xs:sequence>
+                    <xs:choice>
+                        <xs:element name="multiDepartures">
+                            <xs:annotation>
+                                <xs:documentation>Structure pour une recherche avec plusieurs points de départ possibles et un seul point d'arrivée</xs:documentation>
+                            </xs:annotation>
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element maxOccurs="unbounded" name="Departure"
+                                        type="location-time:LocationContextType">
+                                        <xs:annotation>
+                                            <xs:documentation>Structure de point de départ</xs:documentation>
+                                        </xs:annotation>
+                                    </xs:element>
+                                    <xs:element name="Arrival"
+                                        type="location-time:LocationContextType">
+                                        <xs:annotation>
+                                            <xs:documentation>Structure de point d'arrivée</xs:documentation>
+                                        </xs:annotation>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                        <xs:element name="multiArrivals">
+                            <xs:annotation>
+                                <xs:documentation>Structure pour une recherche avec plusieurs points d'arrivée possibles et un seul point de départ</xs:documentation>
+                            </xs:annotation>
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="Departure"
+                                        type="location-time:LocationContextType"/>
+                                    <xs:element maxOccurs="unbounded" name="Arrival"
+                                        type="location-time:LocationContextType"/>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:choice>
+                    <xs:group ref="itinerary-request:ItineraryRequestParametersGroup"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:simpleType name="PlanTripStatusCodeEnumeration">
+        <xs:annotation>
+            <xs:documentation>Liste des codes de status spécifiques au service</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="protocol:StatusCodeEnumeration">
+            <xs:enumeration value="OK"/>
+            <xs:enumeration value="TOO_FAR_POSITION"/>
+            <xs:enumeration value="UNKNOWN_END_POINT"/>
+            <xs:enumeration value="DATE_OUT_OF_SCOPE"/>
+            <xs:enumeration value="TOO_MANY_END_POINT"/>
+            <xs:enumeration value="BAD_REQUEST"/>
+            <xs:enumeration value="INTERNAL_ERROR"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

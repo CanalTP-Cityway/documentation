@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2006 sp2 U (http://www.altova.com) by toto (EMBRACE) -->
+<xs:schema xmlns="http://www.apiisim.fr/distributed-journey-planner/1.0/plantrip"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:elementFormDefault="qualified"
+	targetNamespace="http://www.apiisim.fr/distributed-journey-planner/1.0/plantrip" version="0.10"
+	id="journeyplanner"
+	xmlns:protocol="http://www.apiisim.fr/distributed-journey-planner/1.0/protocol"
+	xmlns:itinerary="http://www.apiisim.fr/common/1.0/itinerary"
+	xmlns:itinerary-request="http://www.apiisim.fr/common/1.0/itinerary-request"
+	xmlns:netex="http://www.netex.org.uk/netex">
+	<xs:import namespace="http://www.apiisim.fr/distributed-journey-planner/1.0/protocol"
+		schemaLocation="Protocol.xsd"/>
+	<xs:import namespace="http://www.apiisim.fr/common/1.0/itinerary" schemaLocation="Itinerary.xsd"/>
+	<xs:import namespace="http://www.apiisim.fr/common/1.0/itinerary-request"
+		schemaLocation="ItineraryRequest.xsd"/>
+	<xs:import namespace="http://www.netex.org.uk/netex"
+		schemaLocation="netex/PublicationDeliverySimplified.xsd"/>
+	<xs:element name="PlanTripRequest" type="PlanTripRequestType">
+		<xs:annotation>
+			<xs:documentation>Message du client qui demande un calcul d'itinéraire distribué (Requête de recherche d'itinéraire).</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="PlanTripResponse">
+		<xs:annotation>
+			<xs:documentation>Message du serveur qui valide ou non la requête reçue.
+Ce message fournit l'identifiant de la recherche d'itinéraire au niveau du serveur.
+Le message rappelle également l'identifiant de la demande de recherche d'itinéraire, utilisé dans la requête envoyée par le client.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="protocol:AbstractResponseType">
+					<xs:sequence>
+						<xs:element name="clientRequestId">
+							<xs:annotation>
+								<xs:documentation>Identifiant de la demande de recherche d'itinéraire fournie par le client</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element minOccurs="0" maxOccurs="unbounded" name="errors"
+							type="ErrorType">
+							<xs:annotation>
+								<xs:documentation>séquence des données en erreur dans la structure associée à la demande de recherche d'itinéraire</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="ErrorType">
+		<xs:sequence>
+			<xs:element name="Field" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Nom de l'élément en erreur
+</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Message" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Message d'erreur associé</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="FieldEnumeration">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Departure"/>
+			<xs:enumeration value="Arrival"/>
+			<xs:enumeration value="DepartureTime"/>
+			<xs:enumeration value="ArrivalTime"/>
+			<xs:enumeration value="Modes"/>
+			<xs:enumeration value="SelfDriveMode"/>
+			<xs:enumeration value="TripPart"/>
+			<xs:enumeration value="Algorithm"/>
+			<xs:enumeration value="AccessibilityConstraint"/>
+			<xs:enumeration value="Language"/>
+			<xs:enumeration value="Other"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:element name="StartingSearch">
+		<xs:annotation>
+			<xs:documentation>Message du serveur qui annonce combien de solutions sont recherchées en parallèle sur le serveur.
+Chaque solution s'applique à une sélection de SIMs spécifique</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="protocol:AbstractResponseType">
+					<xs:sequence>
+						<xs:element name="MaxComposedTripSearched">
+							<xs:annotation>
+								<xs:documentation>Total de recherches lancées. Chaque recherche est relative à une sélection de SIMs particulière.</xs:documentation>
+							</xs:annotation>
+							<xs:simpleType>
+								<xs:restriction base="xs:int">
+									<xs:minInclusive value="0"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="EndingSearch">
+		<xs:annotation>
+			<xs:documentation>Message du serveur qui :
+- résume les réponses envoyées par le serveur 
+- rappelle combien de solutions ont été recherchées
+Cet élément signale également tout erreur interne qui pourrait survenir sur le serveur au cours de la recherche.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="protocol:AbstractResponseType">
+					<xs:sequence>
+						<xs:element minOccurs="0" name="MaxComposedTripSearched" type="xs:int">
+							<xs:annotation>
+								<xs:documentation>Total de recherches lancées. Chaque recherche est relative à une sélection de SIMs particulière.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="ExistenceNotificationsSent" type="xs:int">
+							<xs:annotation>
+								<xs:documentation>Total de notifications d'existence de sotulion envoyées</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="NotificationsSent" type="xs:int">
+							<xs:annotation>
+								<xs:documentation>Total de notifications de détail de sotulion envoyées</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element minOccurs="0" name="Runtime" type="xs:duration">
+							<xs:annotation>
+								<xs:documentation>Temps d'exécution total</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="PlanTripCancellationRequest">
+		<xs:annotation>
+			<xs:documentation>Message du client qui demande l'annulation d'une requête de calcul d'itinéraire distribué</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="RequestId">
+					<xs:annotation>
+						<xs:documentation>Identifiant de la recherche d'itinéraire. C'est identifiant est produit par le fournisseur du service.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="PlanTripCancellationResponse" type="protocol:AbstractResponseType">
+		<xs:annotation>
+			<xs:documentation>Message du serveur en retour de la demande d'annulation d'une requête de calcul d'itinéraire distribué</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="PlanTripExistenceNotificationResponse"
+		type="PlanTripExistenceNotificationResponseType">
+		<xs:annotation>
+			<xs:documentation>Message du serveur qui indique l'existence d'une solution d'itinéraire sans le détail.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="PlanTripNotificationResponse" type="PlanTripNotificationResponseType">
+		<xs:annotation>
+			<xs:documentation>Message du serveur qui décrit en détail une solution d'itinéraire</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="PlanTripExistenceNotificationResponseType">
+		<xs:annotation>
+			<xs:documentation>Structure de notification de l'existence d'un itinéraire composé d'un certain nombre de SIM</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="protocol:AbstractNotificationResponseType">
+				<xs:sequence>
+					<xs:element name="ComposedTripId">
+						<xs:annotation>
+							<xs:documentation>Identifiant de la solution d'itinéraire.
+Cet identifiant est rappelé dans PlanTripNotificationResponse au niveau de l'attribut id de l'élément ComposedTrip</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="DepartureTime" type="xs:dateTime">
+						<xs:annotation>
+							<xs:documentation>Date heure de départ de l'itinéraire</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="ArrivalTime" type="xs:dateTime">
+						<xs:annotation>
+							<xs:documentation>Date heure d'arrivée de l'itinéraire</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Duration" type="xs:duration">
+						<xs:annotation>
+							<xs:documentation>Durée de l'itinéraire</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Departure" type="itinerary-request:LocationPointType">
+						<xs:annotation>
+							<xs:documentation>Point de départ de la demande de recherche d'itinéraire</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Arrival" type="itinerary-request:LocationPointType">
+						<xs:annotation>
+							<xs:documentation>Point d'arrivée de la demande de recherche d'itinéraire</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element maxOccurs="unbounded" name="providers" type="ProviderType">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="PlanTripNotificationResponseType">
+		<xs:annotation>
+			<xs:documentation>Structure de notification d'une solution d'itinéraire par le service de recherche d'itinéraire distribué</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="protocol:AbstractNotificationResponseType">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="ComposedTrip" type="ComposedTripType"
+						maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Solution d'itinéraire proposé</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="PlanTripRequestType">
+		<xs:annotation>
+			<xs:documentation>Structure de réquête qu'un client peut adresser au service de recherche d'itinéraire distribué.
+Le client peut envoyer plusieurs requêtes en parallèles. Il est donc indispensable d'identifier chacune des requêtes de manière à faire le lien avec les notifications successives. Ces notifications sont transmises au client de manière asynchrone. Chaque notification se raccroche à un identifiant de requête.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="protocol:AbstractRequestType">
+				<xs:sequence>
+					<xs:element name="Departure" type="itinerary-request:LocationPointType">
+						<xs:annotation>
+							<xs:documentation>Point de départ de la demande de recherche d'itinéraire</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Arrival" type="itinerary-request:LocationPointType">
+						<xs:annotation>
+							<xs:documentation>Point d'arrivée de la demande de recherche d'itinéraire</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element minOccurs="0" name="MaxTrips" type="xs:short">
+						<xs:annotation>
+							<xs:documentation>Nombre maximum de solutions à notifier</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:group ref="itinerary-request:ItineraryRequestParametersGroup"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="AccessibilityConstraint" type="xs:boolean">
+		<xs:annotation>
+			<xs:documentation>Indicateur pour exiger l'accessibilité des solutions d'itinéraire proposées</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="LocationPointType">
+		<xs:annotation>
+			<xs:documentation>Structure décrivant une localité caractérisée par une position géographique ponctuelle</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Longitude" type="xs:double"/>
+			<xs:element name="Latitude" type="xs:double"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string"/>
+	</xs:complexType>
+	<xs:complexType name="ComposedTripType">
+		<xs:annotation>
+			<xs:documentation>Structure d'itinéraire recomposé à partir de solutions partielles</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="itinerary:TripType">
+				<xs:sequence>
+					<xs:element maxOccurs="unbounded" minOccurs="2" name="partialTrips"
+						type="PartialTripType"> </xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="StatusTypeEnumeration">
+		<xs:annotation>
+			<xs:documentation>Enumération des types de status de la réponse à la recherche d'itinéraires</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="OK"/>
+			<xs:enumeration value="NO_MORE_SOLUTION_FOR_REQUEST"/>
+			<xs:enumeration value="NO_SOLUTION_FOR_REQUEST"/>
+			<xs:enumeration value="BAD_REQUEST"/>
+			<xs:enumeration value="INTERNAL_ERROR"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="AlgorithmTypeEnumeration">
+		<xs:annotation>
+			<xs:documentation>Type d'optimisation pour le calcul d'itinéraires</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="FASTEST"/>
+			<xs:enumeration value="MINCHANGES"/>
+			<xs:enumeration value="SHORTEST"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="PlanTripStatusCodeEnumeration">
+		<xs:annotation>
+			<xs:documentation>Enumération des codes de status propre au service de recherche d'itinéraire</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="OK"/>
+			<xs:enumeration value="NO_MORE_SOLUTION_FOR_REQUEST"/>
+			<xs:enumeration value="NO_SOLUTION_FOR_REQUEST"/>
+			<xs:enumeration value="BAD_REQUEST"/>
+			<xs:enumeration value="INTERNAL_ERROR"/>
+			<xs:enumeration value="REQUESTED_DATE_OUT_OF_SCOPE"/>
+			<xs:enumeration value="DEPARTURE_UNKNOWN"/>
+			<xs:enumeration value="ARRIVAL_UNKNOWN"/>
+			<xs:enumeration value="DEPARTURE_TOO_FAR"/>
+			<xs:enumeration value="ARRIVAL_TOO_FAR"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="PlanTripNotificationStatusType">
+		<xs:annotation>
+			<xs:documentation>Structure qui décrit le résultat de l'opération de recherche d'itinéraires</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="PlanTripNotificationStatusCode" type="PlanTripStatusCodeEnumeration"/>
+			<xs:group ref="protocol:StatusGroup"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PartialTripType">
+		<xs:annotation>
+			<xs:documentation>Groupe d'éléments qui identifie une réponse d'itinéraire partielle et précise le système ayant produit cette réponse ainsi que des informations globales sur cet itinéraire partiel comme son bilan carbone</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Provider" type="ProviderType"> </xs:element>
+			<xs:element minOccurs="0" name="Distance" type="xs:int">
+				<xs:annotation>
+					<xs:documentation>Distance totale parcourue par l'itinéraire partiel</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:group ref="itinerary:GeneralSectionGroup"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="ProviderType">
+		<xs:annotation>
+			<xs:documentation>Identification d'un SIM ayant fourni une partie de la solution d'itinéraire</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Name">
+				<xs:annotation>
+					<xs:documentation>Nom de l'autorité organisatrice ou du fournisseur du calcul longue distance</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element minOccurs="0" name="Url">
+				<xs:annotation>
+					<xs:documentation>Url du SIM ou du calculateur longue distance ayant produit l'itinéraire partiel</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

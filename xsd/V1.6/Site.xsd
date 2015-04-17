@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2006 sp2 U (http://www.altova.com) by toto (EMBRACE) -->
+<xs:schema xmlns="http://www.apiisim.fr/common/1.0/site" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:elementFormDefault="qualified"
+	targetNamespace="http://www.apiisim.fr/common/1.0/site" version="0.10" id="journeyplanner"
+	xmlns:netex="http://www.netex.org.uk/netex">
+	<xs:import namespace="http://www.netex.org.uk/netex"
+		schemaLocation="netex/PublicationDeliverySimplified.xsd"/>
+	<xs:complexType name="PlaceType">
+		<xs:annotation>
+			<xs:documentation>Structure qui décrit un point de passage générique sur l'itinéraire (adresse, arrêt, commune, etc...). Cette structure ne décrit pas de relation hiérarchique avec d'autres points de passage.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Position" type="netex:LocationStructure" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Position géographique du point de passage</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Name" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Nom du point de passage, ou du POI ou libellé d'adresse...</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CityCode" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Code INSEE du point de passage</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CityName" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Nom de la commune où se situe le point de passage</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element minOccurs="0" name="POITypeName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Catégorie de POI, lorsque le lieu décrit un POI</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Language" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Langue utilisée pour l'ensemble des informations textuelles</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="TypeOfPlaceRef" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Référence Netex du type de lieu</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element minOccurs="0" name="Extension" type="PlaceTypeExtensionType"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Identifiant du point de passage</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="TripStopPlaceType">
+		<xs:annotation>
+			<xs:documentation>Structure qui décrit un point de passage générique sur l'itinéraire (adresse, arrêt, commune, etc...) ainsi que la relation hiérarchique avec un autre point de passage.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="PlaceType">
+				<xs:sequence>
+					<xs:element name="Parent" type="PlaceType" minOccurs="0">
+						<xs:annotation>
+							<xs:documentation>Référence vers le lieu de niveau hiérarchique supérieur</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="PlaceTypeExtensionType">
+		<xs:sequence>
+			<xs:any namespace="##any"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

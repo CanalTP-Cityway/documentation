@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+    targetNamespace="http://www.apiisim.fr/mis-generic/1.0/location-time"
+    xmlns="http://www.apiisim.fr/mis-generic/1.0/location-time"
+    xmlns:itinerary-request="http://www.apiisim.fr/common/1.0/itinerary-request">
+    <xs:import namespace="http://www.apiisim.fr/common/1.0/itinerary-request"
+        schemaLocation="ItineraryRequest.xsd"/>
+    <xs:complexType name="LocationContextType">
+        <xs:annotation>
+            <xs:documentation>Structure décrivant un point de départ ou destination d'itinéraire. Lorsque la position est décrite par une référence (PlaceTypeId) cela suppose qu'elle ait été fournie par le service de collecte des arrêts du SIM auquel s'adresse la recherche.</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="itinerary-request:LocationPointType">
+                <xs:sequence>
+                    <xs:element name="AccessTime" type="xs:duration">
+                        <xs:annotation>
+                            <xs:documentation>Temps d'accès au point de départ (ou destination)</xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+</xs:schema>

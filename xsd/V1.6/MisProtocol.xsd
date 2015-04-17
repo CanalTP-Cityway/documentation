@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+    targetNamespace="http://www.apiisim.fr/mis-generic/1.0/protocol"
+    xmlns="http://www.apiisim.fr/mis-generic/1.0/protocol"
+    xmlns:protocol-framework="http://www.apiisim.fr/common/1.0/protocol-framework">
+    <xs:import namespace="http://www.apiisim.fr/common/1.0/protocol-framework"
+        schemaLocation="ProtocolFramework.xsd"/>
+    <xs:simpleType name="StatusCodeEnumeration">
+        <xs:annotation>
+            <xs:documentation>Liste des codes de status pour l'ensemble des services</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="OK"/>
+            <xs:enumeration value="TOO_FAR_POSITION"/>
+            <xs:enumeration value="UNKNOWN_END_POINT"/>
+            <xs:enumeration value="DATE_OUT_OF_SCOPE"/>
+            <xs:enumeration value="TOO_MANY_END_POINT"/>
+            <xs:enumeration value="BAD_REQUEST"/>
+            <xs:enumeration value="INTERNAL_ERROR"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="AbstractRequestType">
+        <xs:annotation>
+            <xs:documentation>Structure générique des requêtes des services fournis sur les SIM</xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="id" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>Identifiant de la structure de requête. Cet identifiant est fourni par le client du service.
+L'identifiant est rappelé dans la ou les réponses du service (sous forme d'élément RequestId).</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="AbstractResponseType">
+        <xs:annotation>
+            <xs:documentation>Structure générique des réponses des services fournis sur les SIM</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="RequestId" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Cet élément reporte l'attribut id requis par la structure de requête du service.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="ResponseDefaults"
+                type="protocol-framework:ServiceDefaultsType">
+                <xs:annotation>
+                    <xs:documentation>Paramètres par défaut utilisés dans les structures de réponses des différents services</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:group name="StatusGroup">
+        <xs:annotation>
+            <xs:documentation>Groupe d'éléments d'une structure de status propres aux réponses aux services fournis sur les SIM</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element minOccurs="0" name="Comment" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Commentaire associé au status de la réponse produite par un service fourni sur les SIM.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="RuntimeDuration" type="xs:duration">
+                <xs:annotation>
+                    <xs:documentation>Durée d'exécution associée à une réponse produite par un service fourni sur les SIM.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:group>
+</xs:schema>

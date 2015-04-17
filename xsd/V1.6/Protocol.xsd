@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2006 sp2 U (http://www.altova.com) by toto (EMBRACE) -->
+<xs:schema xmlns="http://www.apiisim.fr/distributed-journey-planner/1.0/protocol"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:elementFormDefault="qualified"
+	targetNamespace="http://www.apiisim.fr/distributed-journey-planner/1.0/protocol" version="0.10"
+	id="journeyplanner" xmlns:ns1="http://www.apiisim.fr/common/1.0/protocol-framework">
+	<xs:import namespace="http://www.apiisim.fr/common/1.0/protocol-framework"
+		schemaLocation="ProtocolFramework.xsd"/>
+	<xs:complexType abstract="true" name="AbstractRequestType">
+		<xs:annotation>
+			<xs:documentation>Structure générique de requête à un service du système de recherche d'itinéraire distribuée</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="clientRequestId" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Identifiant de la structure de requête. Cet identifiant est fourni par le client du service.
+L'identifiant est rappelé dans les notifications de réponse (sous forme d'élément RequestId) du service.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="AbstractNotificationResponseType" abstract="true">
+		<xs:annotation>
+			<xs:documentation>Structure générique de notification de réponse d'un service du système de recherche d'itinéraire distribuée</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="AbstractResponseType">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="RuntimeDuration" type="xs:duration"/>
+					<xs:element minOccurs="0" name="ResponseDefaults" type="ns1:ServiceDefaultsType">
+						<xs:annotation>
+							<xs:documentation>Paramètres par défaut utilisés dans les structures de réponses des différents services</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:group name="StatusGroup">
+		<xs:annotation>
+			<xs:documentation>Groupe d'éléments génériques pour la description du status d'une notification de service du système de recherche d'itinéraire distribuée.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Status" type="StatusEnumeration">
+				<xs:annotation>
+					<xs:documentation>Status de la réponse envoyée par le serveur.
+Le Status indique :
+- si la requête transmise par le client n'est pas valide
+- si le serveur rencontre une erreur interne
+- si tout est conforme</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element minOccurs="0" name="Comment" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Texte qui expose les raisons techniques qui justifient l'élément code dans la structure StatusType.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:group>
+	<xs:complexType name="AbstractResponseType">
+		<xs:sequence>
+			<xs:element name="RequestId">
+				<xs:annotation>
+					<xs:documentation>Identifiant de la demande (que ce soit une recherche d'itinéraire ou de localité)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:group ref="StatusGroup"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="StatusEnumeration">
+		<xs:annotation>
+			<xs:documentation>Enumération des codes de status 
+0: OK
+1: Erreur côté client (dans la requête reçue)
+2: Erreur côté serveur</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="0"/>
+			<xs:enumeration value="1"/>
+			<xs:enumeration value="2"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

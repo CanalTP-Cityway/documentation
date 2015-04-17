@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+    targetNamespace="http://www.apiisim.fr/mis-generic/1.0/collect-stops"
+    xmlns="http://www.apiisim.fr/mis-generic/1.0/collect-stops"
+    xmlns:netex="http://www.netex.org.uk/netex"
+    xmlns:protocol="http://www.apiisim.fr/mis-generic/1.0/protocol">
+    <xs:import namespace="http://www.apiisim.fr/mis-generic/1.0/protocol"
+        schemaLocation="MisProtocol.xsd"/>
+    <xs:import namespace="http://www.netex.org.uk/netex"
+        schemaLocation="netex/PublicationDeliverySimplified.xsd"/>
+    <xs:element name="StopsRequest" type="protocol:AbstractRequestType">
+        <xs:annotation>
+            <xs:documentation>Requête de collecte des arrêts d'un SIM</xs:documentation>
+        </xs:annotation>
+    </xs:element>
+    <xs:element name="StopsResponse" type="StopsResponseType">
+        <xs:annotation>
+            <xs:documentation>Réponse collectant les arrêts d'un SIM</xs:documentation>
+        </xs:annotation>
+    </xs:element>
+
+    <xs:complexType name="StopsResponseType">
+        <xs:annotation>
+            <xs:documentation>Structure de requête du service de collecte des arrêts d'un SIM</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="protocol:AbstractResponseType">
+                <xs:sequence>
+                    <xs:element name="Status">
+                        <xs:annotation>
+                            <xs:documentation>Structure de status de la réponse</xs:documentation>
+                        </xs:annotation>
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:element name="Code" type="StopsStatusCodeEnumeration">
+                                    <xs:annotation>
+                                        <xs:documentation>Code du status de la réponse produite par un service fourni sur les SIM.</xs:documentation>
+                                    </xs:annotation>
+                                </xs:element>
+                                <xs:group ref="protocol:StatusGroup"/>
+                            </xs:sequence>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element name="PublicationDelivery" type="netex:PublicationDeliveryType">
+                        <xs:annotation>
+                            <xs:documentation>Structure Netex décrivant les arrêts du SIM</xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:simpleType name="StopsStatusCodeEnumeration">
+        <xs:annotation>
+            <xs:documentation>Liste des codes de status spécifiques au service</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="protocol:StatusCodeEnumeration">
+            <xs:enumeration value="OK"/>
+            <xs:enumeration value="BAD_REQUEST"/>
+            <xs:enumeration value="INTERNAL_ERROR"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

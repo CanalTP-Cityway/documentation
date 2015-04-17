@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+    targetNamespace="http://www.apiisim.fr/mis-generic/1.0/capabilities"
+    xmlns="http://www.apiisim.fr/mis-generic/1.0/capabilities"
+    xmlns:itinerary="http://www.apiisim.fr/common/1.0/itinerary"
+    xmlns:protocol="http://www.apiisim.fr/mis-generic/1.0/protocol">
+    <xs:import namespace="http://www.apiisim.fr/common/1.0/itinerary" schemaLocation="Itinerary.xsd"/>
+    <xs:import namespace="http://www.apiisim.fr/mis-generic/1.0/protocol"
+        schemaLocation="MisProtocol.xsd"/>
+    <xs:element name="CapabilitiesRequest" type="protocol:AbstractRequestType">
+        <xs:annotation>
+            <xs:documentation>Requête de consultation des capacités des services fournis par un SIM</xs:documentation>
+        </xs:annotation>
+    </xs:element>
+    <xs:element name="CapabilitiesResponse" type="CapabilitiesResponseType">
+        <xs:annotation>
+            <xs:documentation>Réponse indiquant les capacités des services fournis par un SIM</xs:documentation>
+        </xs:annotation>
+    </xs:element>
+    <xs:complexType name="CapabilitiesResponseType">
+        <xs:annotation>
+            <xs:documentation>Structure décrivant les capacités des services fournis par un SIM</xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="protocol:AbstractResponseType">
+                <xs:sequence>
+                    <xs:element name="Status">
+                        <xs:annotation>
+                            <xs:documentation>Structure de status de la réponse</xs:documentation>
+                        </xs:annotation>
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:element name="Code" type="CapabilitiesStatusCodeEnumeration">
+                                    <xs:annotation>
+                                        <xs:documentation>Code du status de la réponse produite par un service fourni sur un SIM.</xs:documentation>
+                                    </xs:annotation>
+                                </xs:element>
+                                <xs:group ref="protocol:StatusGroup"/>
+                            </xs:sequence>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element minOccurs="1" name="MultipleStartsAndArrivals" type="xs:boolean">
+                        <xs:annotation>
+                            <xs:documentation>Indique si le SIM est en mesure de répondre à des recherche d'itinaire ayant plusieurs points de départ et d'arrivée.</xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="GeographicPositionCompliant" type="xs:boolean">
+                        <xs:annotation>
+                            <xs:documentation>Indique si le SIM sait répondre à des recherches qui fournissent une position géographique (en départ ou arrivée).</xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="publicTransportMode" type="itinerary:TransportModeEnumeration"
+                        maxOccurs="unbounded">
+                        <xs:annotation>
+                            <xs:documentation>Mode de transport connu du SIM</xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:simpleType name="CapabilitiesStatusCodeEnumeration">
+        <xs:annotation>
+            <xs:documentation>Liste des codes de status spécifiques au service</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="protocol:StatusCodeEnumeration">
+            <xs:enumeration value="OK"/>
+            <xs:enumeration value="BAD_REQUEST"/>
+            <xs:enumeration value="INTERNAL_ERROR"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>
